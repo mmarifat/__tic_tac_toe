@@ -6,6 +6,7 @@ class BoardComponent extends React.PureComponent {
 		currentPlayer: 'X',
 		nextPlayer: 'O',
 		winner: '',
+		displaceSquare: true,
 	}
 	state = this.initState
 
@@ -29,6 +30,8 @@ class BoardComponent extends React.PureComponent {
 			})
 		}
 		const {nextPlayer} = this.state;
+		const {currentPlayer} = this.state;
+
 		const toeValues = this.toeValues[nextPlayer];
 		toeValues.push(change.index)
 
@@ -36,16 +39,20 @@ class BoardComponent extends React.PureComponent {
 			const check = this.winStates.map(state => this.toeValues[nextPlayer].filter(each => state.includes(each))).filter(ln => ln.length === 3).length;
 			if (check) {
 				this.setState({
-					winner: nextPlayer
+					winner: currentPlayer
 				})
-				alert(`Winner is: ${nextPlayer}`)
+				alert(`Winner is: ${currentPlayer}`)
+				this.reset();
 			}
 		}
 	}
 
 	reset = () => {
 		this.setState({
-			...this.initState,
+			currentPlayer: 'X',
+			nextPlayer: 'O',
+			winner: '',
+			displaceSquare: !this.state.displaceSquare
 		})
 		Object.keys(this.toeValues).forEach(key => {
 			this.toeValues[key] = []
@@ -53,7 +60,7 @@ class BoardComponent extends React.PureComponent {
 	}
 
 	render() {
-		const {currentPlayer, nextPlayer, winner} = this.state;
+		const {currentPlayer, nextPlayer, winner, displaceSquare} = this.state;
 		const rowCol = [0, 1, 2];
 		return (
 				<div className="containerStyle">
@@ -66,7 +73,21 @@ class BoardComponent extends React.PureComponent {
 					<div className="boardStyle">
 
 						{
-							rowCol.map((_, rowIndex) => {
+							displaceSquare && rowCol.map((_, rowIndex) => {
+								return (<div className="rowStyle" key={++rowIndex}>
+									{
+										rowCol.map((__, colIndex) => {
+											const key = Number((rowIndex + 1).toString() + (colIndex + 1).toString())
+											return <SquareComponent key={key} index={key} player={currentPlayer} onPlayerChange={this.playerChange}/>
+										})
+									}
+								</div>)
+							})
+						}
+
+						{/*render new plate*/}
+						{
+							!displaceSquare && rowCol.map((_, rowIndex) => {
 								return (<div className="rowStyle" key={++rowIndex}>
 									{
 										rowCol.map((__, colIndex) => {
